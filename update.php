@@ -1,6 +1,14 @@
 <?php
-require_once __DIR__ . '/inc/functions.php';  //作成した関数の読み込み
+require_once __DIR__ . '/inc/functions.php'; //作成した関数の読み込み
 include __DIR__ . "/inc/error_check.php";
+if(empty($_POST['id'])) {
+    echo "idを指定してください。";
+    exit;
+}
+if(!preg_match('/\A\d{0,11}\z/u', $_POST['id'])) {
+    echo "idが正しくありません。";
+    exit;
+}
 if(empty($_POST['title'])) {
     echo "タイトルは必須です。";
     exit;
@@ -31,21 +39,23 @@ if(!checkdate($date[1], $date[2], $date[0])) {
     exit;
 }
 if(!preg_match('/\A[[:^cntrl:]]{0,80}\z/u', $_POST['author'])) {
-    echo " 著者名は80文字以内で入力してください。";
+    echo "著者名は80文字以内で入力してください。";
     exit;
 }
 try {
     $dbh = db_open();
-    $sql ="INSERT INTO books (id, title, isbn, price, publish, author) VALUES (NULL, :title, :isbn, :price, :publish, :author)";
+    $sql ="UPDATE books SET title = :title , isbn = :isbn, price = :price, publish = :publish, author = :author WHERE id = :id";
     $stmt = $dbh->prepare($sql);
     $price = (int) $_POST['price'];
+    $id = (int) $_POST["id"];
     $stmt->bindParam(":title", $_POST['title'], PDO::PARAM_STR);
     $stmt->bindParam(":isbn", $_POST['isbn'], PDO::PARAM_STR);
     $stmt->bindParam(":price", $price, PDO::PARAM_INT);
     $stmt->bindParam(":publish", $_POST['publish'], PDO::PARAM_STR);
     $stmt->bindParam(":author", $_POST['author'], PDO::PARAM_STR);
+    $stmt->bindParam(":id", $id, PDO::PARAM_INT);
     $stmt->execute();
-    echo "データが追加されました。<br>";
+    echo "データが更新されました。<br>";
     echo "<a href='list.php'>リストへ戻る</a>";
 } catch (PDOException $e) {
     echo "エラー!: " . str2html($e->getMessage()) . "<br>";
