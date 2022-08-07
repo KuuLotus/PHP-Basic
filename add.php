@@ -1,4 +1,5 @@
 <?php
+require_once __DIR__ . "/token_check.php";
 require_once __DIR__ . '/inc/functions.php';  //作成した関数の読み込み
 include __DIR__ . "/inc/error_check.php";
 if(empty($_POST['title'])) {
@@ -46,7 +47,7 @@ try {
     $stmt->bindParam(":author", $_POST['author'], PDO::PARAM_STR);
     $stmt->execute();
     echo "データが追加されました。<br>";
-    echo "<a href='list.php'>リストへ戻る</a>";
+    echo "<a href='index.php'>リストへ戻る</a>";
 } catch (PDOException $e) {
     echo "エラー!: " . str2html($e->getMessage()) . "<br>";
     exit;
